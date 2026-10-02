@@ -166,7 +166,7 @@ const dpr=Math.min(devicePixelRatio||1,2);let w,h,sc=1,n=0,ex=0,fr=0,run=false,m
 const names=['Planner','Retriever','Coder','Critic','Browser','Memory','Evaluator','Router','Summarizer','Verifier','Scout','Writer'];
 const hues=[150,200,265,35,330,12,180,95,300,55,220,350];
 function fit(){const r=box.getBoundingClientRect();w=r.width;h=r.height;cv.width=w*dpr;cv.height=h*dpr;g.setTransform(dpr,0,0,dpr,0,0);sc=Math.min(w,700)/700+.25}
-function mk(x,y){const i=n++%names.length;return{nm:names[i]+(n>names.length?' '+Math.ceil(n/names.length):''),hue:hues[i],x:x??w*(.12+Math.random()*.76),y:y??h*(.15+Math.random()*.7),vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,k:Math.random()*.5,r:0,near:0,pt:Array.from({length:12},()=>({a:Math.random()*6.28,d:Math.random(),v:(Math.random()*.012+.004)*(Math.random()<.5?-1:1)}))}}
+function mk(x,y){const i=n++%names.length;return{nm:names[i]+(n>names.length?' '+Math.ceil(n/names.length):''),hue:hues[i],x:x??w*(.12+Math.random()*.76),y:y??h*(.15+Math.random()*.7),vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,ph:Math.random()*6.28,k:Math.random()*.5,r:0,near:0,pt:Array.from({length:12},()=>({a:Math.random()*6.28,d:Math.random(),v:(Math.random()*.012+.004)*(Math.random()<.5?-1:1)}))}}
 fit();for(let i=0;i<7;i++)A.push(mk());
 function step(){
   for(const a of A){a.near=0;a.r=(16+a.k*92)*sc;a.x+=a.vx;a.y+=a.vy;
@@ -200,8 +200,9 @@ function pos(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e
 cv.addEventListener('pointermove',e=>mouse=pos(e));cv.addEventListener('pointerleave',()=>mouse=null);
 cv.addEventListener('pointerdown',e=>{if(A.length<12){const p=pos(e);const a=mk(p.x,p.y);a.k=.05;A.push(a);rings.push({x:p.x,y:p.y,r:10,al:.8,hue:a.hue})}});
 addEventListener('resize',fit);
-if(RM){for(let i=0;i<300;i++)step();draw();hud.textContent=A.length+' agents · '+ex+' exchanges'}
-else new IntersectionObserver(es=>{const on=es[0].isIntersecting;if(on&&!run){run=true;loop()}else if(!on)run=false}).observe(box);
+let vis=false;
+function sync(){if(vis&&!run){run=true;loop()}else if(!vis)run=false}
+new IntersectionObserver(es=>{vis=es[0].isIntersecting;sync()}).observe(box);
 })();
 /* copy email */
 document.getElementById('cp').onclick=async e=>{try{await navigator.clipboard.writeText('anokh616@gmail.com');e.target.textContent='Copied ✓'}catch{e.target.textContent='Press Ctrl+C on the address'}setTimeout(()=>e.target.textContent='Copy email',2000)};
